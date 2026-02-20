@@ -1,0 +1,8 @@
+node_modules/
+apiBot/storage/
+
+.env
+
+*_sessions/
+*.log
+*.png
