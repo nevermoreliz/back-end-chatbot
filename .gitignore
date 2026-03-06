@@ -6,3 +6,4 @@ apiBot/storage/
 *_sessions/
 *.log
 *.png
+.qodo

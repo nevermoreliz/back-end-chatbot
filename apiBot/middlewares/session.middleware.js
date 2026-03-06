@@ -27,7 +27,7 @@ const authMiddleware = async (req, res, next) => {
         /* -------------------------------------------------------------------------- */
         const usuarioData = await Usuario.findOne({
             where: { id_usuario: dataToken.id },
-            attributes: ['id_usuario', 'nombre_usuario', 'contrasenia_hash', 'id_persona', 'activo']
+            attributes: ['id_usuario', 'id_persona', 'nombre_usuario', 'contrasenia_hash', 'activo', 'created_at', 'updated_at']
         });
 
         if (!usuarioData) {
