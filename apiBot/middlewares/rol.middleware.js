@@ -12,7 +12,7 @@ const checkRol = (roles) => (req, res, next) => {
         // console.log("checkRol:", { usuario });
 
         const rolesByUser = usuario.roles;
-        //TODO: ["Administrador","Agente","UsuarioRegistrado"]
+        //TODO: ["administrador","agente","usuario registrado"]
         const checkValueRol = roles.some((rolSingle) => rolesByUser.includes(rolSingle)); //TODO: true, false
         if (!checkValueRol) {
             handleHttpError(res, "USUARIO_SIN_PERMISOS", 403);
