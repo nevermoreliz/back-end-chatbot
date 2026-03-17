@@ -8,6 +8,7 @@ const util = require("util");
 const path = require('path');
 const fs = require("fs");
 const Persona = require('../models/persona.model');
+const { log } = require('console');
 
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
@@ -148,6 +149,7 @@ const updatePersona = async (req, res) => {
         const upload = uploadMiddleware(id, customPathStorage).single("img");
 
         upload(req, res, async function (error) {
+
             // Verificar si hay errores de validación
             if (error) {
                 return handleHttpError(res, "ERROR_SUBIDA_ARCHIVO: " + error.message, 400);
@@ -162,16 +164,22 @@ const updatePersona = async (req, res) => {
                 // El archivo ya está subido (si existe)
                 const file = req.file;
 
+                // const matchedBody = matchedData(req);
+                const matchedBody = req.body;
+
                 // Obtener datos del formulario
                 const {
                     nombre,
                     paterno,
                     materno,
                     ci,
+                    celular,
                     fecha_nacimiento,
-                    correo_electronico,
+                    correo,
                     sexo
-                } = req = matchedData(req);
+                } = matchedBody;
+
+                // console.log('⏩ matchedData:', matchedBody);
 
                 // Preparar datos para actualizar persona
                 const personaData = {
@@ -179,10 +187,12 @@ const updatePersona = async (req, res) => {
                     paterno,
                     materno,
                     ci,
+                    celular,
                     fecha_nacimiento,
-                    correo_electronico,
+                    correo,
                     sexo
                 };
+
 
                 // Manejar la imagen si existe una nueva
                 if (file) {
