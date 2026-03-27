@@ -7,8 +7,11 @@ const { uploadMiddleware, deleteFile } = require("../utils/handle-storage");
 const util = require("util");
 const path = require('path');
 const fs = require("fs");
+const { Op } = require('sequelize');
 const Persona = require('../models/persona.model');
-const { log } = require('console');
+const Usuario = require('../models/usuario.model');
+const Rol = require('../models/rol.model');
+const UsuarioRol = require('../models/usuarios-roles.model');
 
 const PUBLIC_URL = process.env.PUBLIC_URL;
 
@@ -38,18 +41,50 @@ const getPersona = async (req, res) => {
 
 const getPersonas = async (req, res) => {
     try {
+        // Obtener parámetros de paginación desde query params o body
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+        const sortBy = req.query.sortBy || 'id_persona';
+        const sortOrder = req.query.sortOrder || 'desc';
+
+        // ─── Condición de búsqueda
+        const where = search ? {
+            [Op.or]: [
+                { nombre: { [Op.like]: `%${search}%` } },
+                { paterno: { [Op.like]: `%${search}%` } },
+                { materno: { [Op.like]: `%${search}%` } },
+                { ci: { [Op.like]: `%${search}%` } },
+                { celular: { [Op.like]: `%${search}%` } },
+            ]
+        } : {};
 
         try {
-            const personas = await Persona.findAll()
-            handleResponseJson(res, 200, personas, 'LISTA_PERSONAS')
+
+            const { count: totalItems, rows: personas } = await Persona.findAndCountAll({
+                where,
+                limit,
+                offset,
+                order: [[sortBy, sortOrder.toUpperCase()]]
+            });
+
+            // ─── Meta de paginación
+            const paginacion = {
+                total: totalItems,
+                page,
+                limit,
+                totalPages: Math.ceil(totalItems / limit)
+            };
+
+            handleResponseJson(res, 200, personas, 'LISTA_PERSONAS', paginacion)
+
         } catch (dbError) {
             console.log("Error al obtener lista personas:", dbError.message);
             handleHttpError(res, "ERROR_LISTAR_PERSONAS", 500);
         }
 
-
     } catch (error) {
-        // console.log(error);
         console.log('[ERROR]: ', error);
         handleHttpError(res, 'ERROR_GET_PERSONA')
     }
@@ -277,4 +312,70 @@ const retornarImagen = async (req, res) => {
     }
 }
 
-module.exports = { getPersona, getPersonas, createPersona, updatePersona, deletePersona, retornarImagen }
+const getPersonasUsuarios = async (req, res) => {
+    try {
+        // Obtener parámetros de paginación desde query params o body
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+        const sortBy = req.query.sortBy || 'id_persona';
+        const sortOrder = req.query.sortOrder || 'desc';
+
+        // ─── Condición de búsqueda
+        const where = search ? {
+            [Op.or]: [
+                { nombre: { [Op.like]: `%${search}%` } },
+                { paterno: { [Op.like]: `%${search}%` } },
+                { materno: { [Op.like]: `%${search}%` } },
+                { ci: { [Op.like]: `%${search}%` } },
+                { celular: { [Op.like]: `%${search}%` } },
+            ]
+        } : {};
+
+        try {
+
+            const { count: totalItems, rows: personas } = await Persona.findAndCountAll({
+                where,
+                include: [{
+                    model: Usuario,
+                    as: 'usuario',
+                    attributes: ['id_usuario', 'nombre_usuario', 'activo'],
+                    required: false, // LEFT JOIN: trae personas con o sin usuario
+                    include: [{
+                        model: Rol,
+                        attributes: ['id_rol', 'nombre_rol', 'descripcion'],
+                        through: {
+                            model: UsuarioRol,
+                            attributes: ['fecha_asignacion', 'activo'] // datos de la tabla intermedia
+                        },
+                        required: false // LEFT JOIN: trae usuarios con o sin roles
+                    }]
+                }],
+                limit,
+                offset,
+                order: [[sortBy, sortOrder.toUpperCase()]]
+            });
+
+            // ─── Meta de paginación
+            const paginacion = {
+                total: totalItems,
+                page,
+                limit,
+                totalPages: Math.ceil(totalItems / limit)
+            };
+
+            handleResponseJson(res, 200, personas, 'LISTA_PERSONAS_CON_USUARIOS', paginacion)
+
+        } catch (dbError) {
+            console.log("Error al obtener lista personas:", dbError.message);
+            handleHttpError(res, "ERROR_LISTA_PERSONAS_CON_USUARIOS", 500);
+        }
+
+    } catch (error) {
+        console.log('[ERROR]: ', error);
+        handleHttpError(res, 'ERROR_GET_PERSONA_CON_USUARIO')
+    }
+};
+
+module.exports = { getPersona, getPersonas, createPersona, updatePersona, deletePersona, retornarImagen, getPersonasUsuarios }
