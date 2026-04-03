@@ -122,7 +122,8 @@ const createPersona = async (req, res) => {
                     ci,
                     celular,
                     sexo,
-                    fecha_nacimiento
+                    fecha_nacimiento,
+                    notificaciones_chatbot
                 } = req = matchedData(req)
 
                 // Preparar datos para crear persona
@@ -134,7 +135,8 @@ const createPersona = async (req, res) => {
                     ci,
                     celular,
                     sexo,
-                    fecha_nacimiento
+                    fecha_nacimiento,
+                    notificaciones_chatbot
                 };
 
                 // Añadir foto solo si existe
