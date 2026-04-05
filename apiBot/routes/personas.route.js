@@ -10,17 +10,11 @@ router.get("/profile/:img", [authMiddleware, checkRol(['administrador', 'agente'
 
 router.get("/usuarios", [authMiddleware, checkRol(['administrador'])], getPersonasUsuarios);
 
-router.get("/:id", [authMiddleware, checkRol(['administrador'])], getPersona);
+router.get("/:id", [authMiddleware, checkRol(['administrador', 'agente'])], getPersona);
 router.get("/", [authMiddleware, checkRol(['administrador'])], getPersonas);
 
 router.post("/", [authMiddleware, checkRol(['administrador']), validatorCreatePersona], createPersona);
 router.put("/:id", [authMiddleware, checkRol(['administrador'])], validatorUpdatePersona, updatePersona);
 router.delete("/:id", [authMiddleware, checkRol(['administrador'])], deletePersona);
-
-
-// enlaces para database
-router.post("/datatable", authMiddleware, checkRol(['administrador']), getPersonas);
-
-
 
 module.exports = router

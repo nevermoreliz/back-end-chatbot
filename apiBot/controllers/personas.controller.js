@@ -327,11 +327,11 @@ const getPersonasUsuarios = async (req, res) => {
         // ─── Condición de búsqueda
         const where = search ? {
             [Op.or]: [
-                { nombre: { [Op.like]: `%${search}%` } },
-                { paterno: { [Op.like]: `%${search}%` } },
-                { materno: { [Op.like]: `%${search}%` } },
-                { ci: { [Op.like]: `%${search}%` } },
-                { celular: { [Op.like]: `%${search}%` } },
+                { nombre: { [Op.iLike]: `%${search}%` } },
+                { paterno: { [Op.iLike]: `%${search}%` } },
+                { materno: { [Op.iLike]: `%${search}%` } },
+                { ci: { [Op.iLike]: `%${search}%` } },
+                { celular: { [Op.iLike]: `%${search}%` } },
             ]
         } : {};
 
