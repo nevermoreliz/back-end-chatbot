@@ -6,10 +6,12 @@ const Rol = require('./rol.model');
 const UsuarioRol = adapterDB.define('usuarios_roles',
     {
         id_usuario: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            primaryKey: true
         },
         id_rol: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            primaryKey: true
         },
         fecha_asignacion: {
             type: DataTypes.STRING
@@ -25,7 +27,8 @@ const UsuarioRol = adapterDB.define('usuarios_roles',
         updatedAt: 'updated_at',
         tableName: 'usuarios_roles',
         schema: 'cursos'
-    });
+    }
+);
 
 
 Usuario.belongsToMany(Rol, { through: UsuarioRol, foreignKey: 'id_usuario' });

@@ -53,4 +53,8 @@ const Persona = adapterDB.define('personas',
         schema: 'cursos'
     });
 
+// ─── Asociación: Una persona puede tener un usuario (o no)
+const Usuario = require('./usuario.model');
+Persona.hasOne(Usuario, { foreignKey: 'id_persona', as: 'usuario' });
+
 module.exports = Persona

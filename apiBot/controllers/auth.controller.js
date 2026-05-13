@@ -109,7 +109,7 @@ const renewToken = async (req, res = response) => {
         // Generar el TOKEN - JWT
         const data = {
             token: await tokenSing(usuario.id_usuario),
-            usuario
+            user: usuario
         };
 
         handleResponseJson(res, 200, data, "TOKEN_RENOVADO");

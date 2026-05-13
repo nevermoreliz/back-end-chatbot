@@ -70,13 +70,8 @@ const createUsuario = async (req, res) => {
         const usuarioData = await Usuario.create(dataUsuarioCreate);
         usuarioData.set('contrasenia_hash', undefined, { strict: false })
 
-        const data = {
-            token: await tokenSing(usuarioData),
-            user: usuarioData
-        }
-
         /* ------------------------ enviar respuesta en json ------------------------ */
-        handleResponseJson(res, 200, data);
+        handleResponseJson(res, 200, usuarioData);
 
     } catch (error) {
         handleHttpError(res, 'ERROR_CREATE_USUARIO')
@@ -111,17 +106,22 @@ const updateUsuario = async (req, res) => {
     }
 };
 
+// desabilita logicamente
 const deleteUsuario = async (req, res) => {
     try {
 
         // obtener el parametro id de la url
         const { id } = req.params;
 
+        const usuarioDb = await Usuario.findByPk(id);
+
+        if (!usuarioDb) {
+            return handleResponseJsonMsg(res, 404, 'NO_EXISTE_ESE_USUARIO_CON_ESE_ID')
+        }
 
         await Usuario.update({ activo: false }, { where: { id_usuario: id } })
 
         handleResponseJsonMsg(res, 200, 'USUARIO_ELIMINADO');
-
 
     } catch (error) {
         handleHttpError(res, 'ERROR_DELETE_USUARIO')
@@ -130,4 +130,28 @@ const deleteUsuario = async (req, res) => {
     }
 };
 
-module.exports = { getUsuario, getUsuarios, createUsuario, updateUsuario, deleteUsuario }
+// habilita logicamente
+const habilitarUsuario = async (req, res) => {
+    try {
+
+        // obtener el parametro id de la url
+        const { id } = req.params;
+
+        const usuarioDb = await Usuario.findByPk(id);
+
+        if (!usuarioDb) {
+            return handleResponseJsonMsg(res, 404, 'NO_EXISTE_ESE_USUARIO_CON_ESE_ID')
+        }
+
+        await Usuario.update({ activo: true }, { where: { id_usuario: id } })
+
+        handleResponseJsonMsg(res, 200, 'USUARIO_HABILITADO');
+
+    } catch (error) {
+        handleHttpError(res, 'ERROR_HABILITAR_USUARIO')
+        console.log("ERROR_HABILITAR_USUARIO", error);
+
+    }
+};
+
+module.exports = { getUsuario, getUsuarios, createUsuario, updateUsuario, deleteUsuario, habilitarUsuario }
