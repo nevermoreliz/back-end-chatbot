@@ -1,12 +1,11 @@
 const express = require('express')
 const router = express.Router()
 
-const checkRol = require('../middlewares/rol.middleware');
-const authMiddleware = require('../middlewares/session.middleware')
 const { getRoles } = require('../controllers/roles.controller');
+const { requireRole, ACCESS } = require('../middlewares/guard.middleware');
 
 //TODO http://localhost/roles :: get,post,delete.put
 
-router.get("/", [authMiddleware, checkRol(['administrador'])], getRoles);
+router.get("/", requireRole(ACCESS.ADMIN_ONLY), getRoles);
 
 module.exports = router

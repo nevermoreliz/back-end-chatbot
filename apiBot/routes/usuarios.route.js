@@ -1,20 +1,19 @@
 const express = require('express')
 const router = express.Router()
-const authMiddleware = require('../middlewares/session.middleware')
 const { validatorUsuario, validatorUpdateUsuario } = require('../validators/usuarios.validator')
 const { getUsuario, createUsuario, updateUsuario, getUsuarios, deleteUsuario, habilitarUsuario } = require('../controllers/usuarios.controller');
-const checkRol = require('../middlewares/rol.middleware');
+const { requireRole, ACCESS } = require('../middlewares/guard.middleware');
 
 //TODO http://localhost/api/usuarios :: get,post,delete.put
 
-router.get("/:id", [authMiddleware, checkRol(['administrador'])], getUsuario);
-router.get("/", [authMiddleware, checkRol(['administrador'])], getUsuarios);
-router.post("/", [authMiddleware, checkRol(['administrador']), validatorUsuario], createUsuario);
-router.put("/:id", [authMiddleware, checkRol(['administrador']), validatorUpdateUsuario], updateUsuario);
+router.get("/:id", requireRole(ACCESS.ADMIN_ONLY), getUsuario);
+router.get("/", requireRole(ACCESS.ADMIN_ONLY), getUsuarios);
+router.post("/", requireRole(ACCESS.ADMIN_ONLY), validatorUsuario, createUsuario);
+router.put("/:id", requireRole(ACCESS.ADMIN_ONLY), validatorUpdateUsuario, updateUsuario);
 
 // desabilita logicamente
-router.delete("/:id", [authMiddleware, checkRol(['administrador'])], deleteUsuario);
+router.delete("/:id", requireRole(ACCESS.ADMIN_ONLY), deleteUsuario);
 // habilita logicamente
-router.put("/:id/habilitar", [authMiddleware, checkRol(['administrador'])], habilitarUsuario);
+router.put("/:id/habilitar", requireRole(ACCESS.ADMIN_ONLY), habilitarUsuario);
 
 module.exports = router
