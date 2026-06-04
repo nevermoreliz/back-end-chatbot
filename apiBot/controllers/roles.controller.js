@@ -28,15 +28,51 @@ const getRol = async (req, res) => {
 const getRoles = async (req, res) => {
     try {
 
-        const roles = await Rol.findAll();
+        // Obtener parámetros de paginación desde query params o body
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+        const sortBy = req.query.sortBy || 'id_rol';
+        const sortOrder = req.query.sortOrder || 'desc';
 
-        if (!roles) {
-            return handleHttpError(res, 404, "ROLES_NO_ENCONTRADOS")
+        // ─── Condición de búsqueda
+        const where = search ? {
+            [Op.or]: [
+                { nombre_rol: { [Op.like]: `%${search}%` } }
+            ]
+        } : {};
+
+        try {
+
+            const { count: totalItems, rows: roles } = await Rol.findAndCountAll({
+                where,
+                limit,
+                offset,
+                order: [[sortBy, sortOrder.toUpperCase()]]
+            });
+
+            // ─── Meta de paginación
+            const paginacion = {
+                total: totalItems,
+                page,
+                limit,
+                totalPages: Math.ceil(totalItems / limit)
+            };
+
+            if (!roles) {
+                return handleHttpError(res, 404, "ROLES_NO_ENCONTRADOS")
+            }
+
+            handleResponseJson(res, 200, roles, 'LISTA_ROLES', paginacion);
+
+        } catch (dbError) {
+            console.log("Error al obtener lista roles:", dbError.message);
+            handleHttpError(res, "ERROR_LISTAR_ROLES", 500);
         }
 
-        handleResponseJson(res, 200, roles);
-
     } catch (error) {
+        console.log('[ERROR]: ', error);
         handleHttpError(res, 'ERROR_GET_ROLES')
     }
 };
@@ -44,36 +80,34 @@ const getRoles = async (req, res) => {
 const createRol = async (req, res) => {
     try {
 
-        const validatedData = matchedData(req);
-        const { nombre_rol } = validatedData;
+        const { nombre_rol, descripcion } = matchedData(req);
 
-        /* ------------- consultar si existe el mismo nombre de usuario ------------- */
-        const rol = await Rol.findOne({
-            where: {
-                [Op.or]:
-                    [
-                        { nombre_rol }
-                    ]
-            }
+
+
+        const existRol = await Rol.findOne({
+            where: { nombre_rol }
         });
 
-        /* -------------------- verificar si el usuairo ya existe ------------------- */
-        if (rol) {
-            return handleResponseJsonMsg(res, 200, "NOMBRE_DE_ROL_YA_EXISTE")
+
+        if (existRol) {
+            return handleHttpError(res, 404, "ROL_YA_EXISTE")
         }
 
-        /* ------------------------------ crear rol ----------------------------- */
-        const dataRolCreate = { ...validatedData }
+        try {
 
-        /* ------------------- guardar el rol a base de datos ------------------- */
-        const rolData = await Rol.create(dataRolCreate);
+            const rolCreated = await Rol.create({ nombre_rol, descripcion });
 
-        const data = {
-            rol: rolData
+            console.log('rol created: ', rolCreated);
+
+        } catch (error) {
+            console.log('Error al crear rol:', error);
+            handleHttpError(res, "ERROR_CREAR_ROL", 500);
         }
 
-        /* ------------------------ enviar respuesta en json ------------------------ */
-        handleResponseJson(res, 200, data);
+
+
+
+        handleResponseJson(res, 200, rolCreated, 'ROL_CREADO');
 
     } catch (error) {
         handleHttpError(res, 'ERROR_CREATE_ROL')
