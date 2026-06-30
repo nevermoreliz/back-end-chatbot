@@ -503,7 +503,7 @@ CREATE TRIGGER trg_pagos_updated_at
 
 -- Tabla: SesionesChatbot
 -- Registra cada conversación iniciada, con estado del flujo y contexto JSON
-CREATE TABLE cursos.SesionesChatbot (
+CREATE TABLE cursos.sesiones_chatbot (
     id_sesion_chat SERIAL PRIMARY KEY,
     id_persona INT,                             -- NULL si aún no se identificó
     canal VARCHAR(20) NOT NULL CHECK (canal IN ('WhatsApp', 'Web', 'Telegram', 'Facebook')),
@@ -516,23 +516,23 @@ CREATE TABLE cursos.SesionesChatbot (
     ultimo_mensaje_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_persona_sesion_chat FOREIGN KEY (id_persona) REFERENCES cursos.Personas(id_persona) ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT fk_curso_sesion_chat FOREIGN KEY (id_curso_interes) REFERENCES cursos.Cursos(id_curso) ON DELETE SET NULL ON UPDATE CASCADE
+    CONSTRAINT fk_persona_sesion_chat FOREIGN KEY (id_persona) REFERENCES cursos.personas(id_persona) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT fk_curso_sesion_chat FOREIGN KEY (id_curso_interes) REFERENCES cursos.cursos(id_curso) ON DELETE SET NULL ON UPDATE CASCADE
 );
-COMMENT ON TABLE cursos.SesionesChatbot IS 'Sesiones de conversación del chatbot. Permite retomar contexto entre mensajes.';
+COMMENT ON TABLE cursos.sesiones_chatbot IS 'Sesiones de conversación del chatbot. Permite retomar contexto entre mensajes.';
 
-CREATE INDEX idx_sesiones_chat_persona ON cursos.SesionesChatbot(id_persona);
-CREATE INDEX idx_sesiones_chat_contacto ON cursos.SesionesChatbot(numero_contacto);
-CREATE INDEX idx_sesiones_chat_activa ON cursos.SesionesChatbot(sesion_activa, ultimo_mensaje_at DESC);
+CREATE INDEX idx_sesiones_chat_persona ON cursos.sesiones_chatbot(id_persona);
+CREATE INDEX idx_sesiones_chat_contacto ON cursos.sesiones_chatbot(numero_contacto);
+CREATE INDEX idx_sesiones_chat_activa ON cursos.sesiones_chatbot(sesion_activa, ultimo_mensaje_at DESC);
 
 CREATE TRIGGER trg_sesiones_chat_updated_at
-  BEFORE UPDATE ON cursos.SesionesChatbot
+  BEFORE UPDATE ON cursos.sesiones_chatbot
   FOR EACH ROW EXECUTE FUNCTION cursos.set_updated_at();
 
 
 -- Tabla: MensajesChatbot
 -- Historial completo de mensajes por sesión
-CREATE TABLE cursos.MensajesChatbot (
+CREATE TABLE cursos.mensajes_chatbot (
     id_mensaje SERIAL PRIMARY KEY,
     id_sesion_chat INT NOT NULL,
     rol VARCHAR(10) NOT NULL CHECK (rol IN ('user', 'bot', 'agente')),
@@ -541,12 +541,12 @@ CREATE TABLE cursos.MensajesChatbot (
     metadata_json JSONB,                        -- Botones pulsados, opciones mostradas, etc.
     leido BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_sesion_mensaje FOREIGN KEY (id_sesion_chat) REFERENCES cursos.SesionesChatbot(id_sesion_chat) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_sesion_mensaje FOREIGN KEY (id_sesion_chat) REFERENCES cursos.sesiones_chatbot(id_sesion_chat) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT chk_contenido_mensaje CHECK (TRIM(contenido) <> '')
 );
-COMMENT ON TABLE cursos.MensajesChatbot IS 'Historial de mensajes del chatbot por sesión para contexto y auditoría.';
+COMMENT ON TABLE cursos.mensajes_chatbot IS 'Historial de mensajes del chatbot por sesión para contexto y auditoría.';
 
-CREATE INDEX idx_mensajes_sesion ON cursos.MensajesChatbot(id_sesion_chat, created_at DESC);
+CREATE INDEX idx_mensajes_sesion ON cursos.mensajes_chatbot(id_sesion_chat, created_at DESC);
 
 
 -- Tabla: PlantillasMensaje (NUEVA)
@@ -695,7 +695,7 @@ INSERT INTO cursos.Bancos (nombre_banco, codigo_banco) VALUES
 ('Banco Solidario', 'SOL'),
 ('Banco Union', 'BU');
 
-INSERT INTO cursos.CategoriasCursos (nombre_categoria, descripcion, icono, color_hex) VALUES
+INSERT INTO cursos.categorias_cursos (nombre_categoria, descripcion, icono, color_hex) VALUES
 ('MONOGRAFÍA',               'Elaboración, estructura y metodología de monografías académicas',  'document-text',  '#4F46E5'),
 ('TESIS',                    'Investigación, metodología y redacción de tesis de grado y postgrado', 'academic-cap', '#059669'),
 ('ENSAYOS',                  'Redacción y estructura de ensayos académicos',                     'pencil-square',  '#DC2626'),
@@ -725,7 +725,7 @@ INSERT INTO cursos.Etiquetas (nombre_etiqueta, descripcion, color_hex) VALUES
 ('Workshop',              'Talleres prácticos',                                    '#FD7E14');
 
 -- Plantillas de mensaje iniciales para el chatbot
-INSERT INTO cursos.PlantillasMensaje (nombre_plantilla, tipo, canal, contenido, variables_disponibles) VALUES
+INSERT INTO cursos.plantillas_mensaje (nombre_plantilla, tipo, canal, contenido, variables_disponibles) VALUES
 ('bienvenida_general', 'bienvenida', 'WhatsApp',
  '¡Hola {{nombre}}! 👋 Bienvenido/a a nuestro centro de formación académica. Estoy aquí para ayudarte a encontrar el curso ideal para ti. ¿Qué área te interesa?',
  'nombre'),
