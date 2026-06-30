@@ -173,7 +173,7 @@ CREATE TABLE cursos.cursos (
     mensaje_bienvenida TEXT,               -- Mensaje que envía el bot al mostrar este curso
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_categoria FOREIGN KEY (id_categoria) REFERENCES cursos.CategoriasCursos(id_categoria) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_categoria FOREIGN KEY (id_categoria) REFERENCES cursos.categorias_cursos(id_categoria) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT chk_version CHECK (TRIM(version) <> ''),
     CONSTRAINT chk_anio_positivo CHECK (anio >= 2000 AND anio <= EXTRACT(YEAR FROM CURRENT_DATE) + 5),
     CONSTRAINT chk_precio_positivo CHECK (precio >= 0),
