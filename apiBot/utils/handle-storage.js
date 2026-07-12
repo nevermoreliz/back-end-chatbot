@@ -68,6 +68,42 @@ const uploadMiddleware = (
   });
 };
 
+/**
+ * Middleware dinámico para rutas de almacenamiento general.
+ * Lee :modulo y opcionalmente :id de req.params para crear carpetas dinámicas.
+ *
+ * Estructura resultante:
+ *   storage/{modulo}/              → sin id
+ *   storage/{modulo}/{id}/         → con id
+ *
+ * @param {string} fieldName - Nombre del campo del formulario (default: 'miArchivo')
+ * @param {string} type - Tipos de archivo permitidos (default: 'jpeg|jpg|png')
+ */
+const dynamicUploadMiddleware = (fieldName = "miArchivo", type = "jpeg|jpg|png") => {
+  return (req, res, next) => {
+    // Sanitizar el nombre del módulo
+    let modulo = req.params.modulo || "general";
+    modulo = modulo.replace(/[^a-zA-Z0-9_-]/g, "");
+
+    // Sanitizar el id (opcional)
+    let id = req.params.id || null;
+    if (id) {
+      id = id.replace(/[^a-zA-Z0-9_-]/g, "");
+    }
+
+    // Construir la ruta de almacenamiento dinámica
+    const pathSegments = [__dirname, "..", "storage", modulo];
+    if (id) {
+      pathSegments.push(id);
+    }
+    const customPathStorage = path.join(...pathSegments);
+
+    // Usar uploadMiddleware existente con la ruta dinámica
+    const upload = uploadMiddleware(id, customPathStorage, type).single(fieldName);
+    upload(req, res, next);
+  };
+};
+
 // Función para eliminar archivo anterior al actualizar
 const deleteFile = (filePath) => {
   if (filePath && fs.existsSync(filePath)) {
@@ -77,4 +113,4 @@ const deleteFile = (filePath) => {
   return false;
 };
 
-module.exports = { uploadMiddleware, deleteFile };
+module.exports = { uploadMiddleware, dynamicUploadMiddleware, deleteFile };

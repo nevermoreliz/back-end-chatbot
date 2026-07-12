@@ -17,7 +17,7 @@ const authMiddleware = async (req, res, next) => {
 
         // console.log("TOKEN2: "+JSON.stringify(dataToken));
 
-        if (!dataToken.id) {
+        if (!dataToken || !dataToken.id) {
             handleHttpError(res, 'ERROR_ID_TOKEN', 401)
             return
         }

@@ -8,7 +8,8 @@
         "predev": "npx eslint . --no-ignore",
         "pre-copy": "cd .. && npm run  copy.lib base-baileys-postgres",
         "start": "node app.js",
-        "dev": "nodemon app.js"
+        "dev": "nodemon app.js",
+        "server-api": "node --watch app.js"
     },
     "keywords": [],
     "dependencies": {

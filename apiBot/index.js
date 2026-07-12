@@ -27,6 +27,10 @@ class ServerBotApi {
         // Archivos estáticos (perfiles)
         // Mapea /api/profile a apiBot/storage/profiles
         this.app.use("/api/profile", express.static(join(__dirname, "storage/profiles")))
+
+        // Archivos estáticos generales (todos los módulos)
+        // Mapea /storage a apiBot/storage para acceso público
+        this.app.use("/storage", express.static(join(__dirname, "storage")))
     }
 
     registerRoutes() {
