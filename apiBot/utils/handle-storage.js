@@ -79,7 +79,7 @@ const uploadMiddleware = (
  * @param {string} fieldName - Nombre del campo del formulario (default: 'miArchivo')
  * @param {string} type - Tipos de archivo permitidos (default: 'jpeg|jpg|png')
  */
-const dynamicUploadMiddleware = (fieldName = "miArchivo", type = "jpeg|jpg|png") => {
+const dynamicUploadMiddleware = (fieldName = "miArchivo", type = "jpeg|jpg|png|pdf") => {
   return (req, res, next) => {
     // Sanitizar el nombre del módulo
     let modulo = req.params.modulo || "general";

@@ -164,5 +164,27 @@ const buscarCurso = async (req, res) => {
 
 };
 
+const habilitarCurso = async (req, res) => {
+    try {
 
-module.exports = { getCurso, getCursos, createCurso, updateCurso, deleteCurso, buscarCurso }
+        const { id } = req.params;
+
+        // 1. Verificar que el curso existe ANTES de actualizar
+        const cursoExistente = await Curso.findByPk(id);
+
+        if (!cursoExistente) {
+            return handleHttpError(res, 'CURSO_NO_ENCONTRADO', 404);
+        }
+
+        // 2. Habilitar el curso
+        await Curso.update({ activo: true }, { where: { id_curso: id } });
+
+        handleResponseJson(res, 200, null, 'CURSO_HABILITADO');
+
+    } catch (error) {
+        handleHttpError(res, error, 'HABILITAR_CURSO');
+    }
+};
+
+
+module.exports = { getCurso, getCursos, createCurso, updateCurso, deleteCurso, buscarCurso, habilitarCurso }

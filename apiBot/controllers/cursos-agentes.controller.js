@@ -7,6 +7,7 @@ const Curso = require('../models/curso.model');
 const Usuario = require('../models/usuario.model');
 require('../models/cursos-agentes.model'); // <-- ¡IMPORTANTE! Esto ejecuta y registra las relaciones belongsToMany
 const { Op, Sequelize } = require('sequelize');
+const CursoAgente = require('../models/cursos-agentes.model');
 
 const getCursosAgente = async (req, res) => {
 
@@ -67,4 +68,18 @@ const getCursosAgente = async (req, res) => {
 
 };
 
-module.exports = { getCursosAgente }
+const asignarCursoAgente = async (req, res) => {
+    try {
+
+        const datosAsignacion = matchedData(req);
+
+        const crearAsignacionCurso = await CursoAgente.create(datosAsignacion);
+
+        handleResponseJson(res, 201, crearAsignacionCurso, 'ASIGNACION_CURSO_AGENTE_CREADA');
+
+    } catch (error) {
+        handleHttpError(res, error, 'ASIGNAR_CURSO_AGENTE');
+    }
+};
+
+module.exports = { getCursosAgente, asignarCursoAgente }

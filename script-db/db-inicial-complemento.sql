@@ -179,7 +179,6 @@ CREATE TABLE cursos.cursos (
     CONSTRAINT chk_precio_positivo CHECK (precio >= 0),
     CONSTRAINT chk_descuento CHECK (descuento >= 0 AND descuento <= 100),
     CONSTRAINT chk_fechas CHECK (fecha_inicio <= fecha_fin OR fecha_fin IS NULL),
-    CONSTRAINT chk_fecha_limite CHECK (fecha_limite_inscripcion <= fecha_inicio OR fecha_limite_inscripcion IS NULL),
     CONSTRAINT chk_participantes CHECK (min_participantes <= max_participantes OR max_participantes IS NULL),
     CONSTRAINT chk_url_afiche CHECK (TRIM(url_afiche) <> '' OR url_afiche IS NULL),
     CONSTRAINT chk_url_contenidos_pdf CHECK (TRIM(url_contenidos_pdf) <> '' OR url_contenidos_pdf IS NULL),

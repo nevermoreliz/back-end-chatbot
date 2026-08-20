@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { createCurso, updateCurso, deleteCurso, getCurso, getCursos, buscarCurso } = require('../controllers/cursos.controller')
+const { createCurso, updateCurso, deleteCurso, getCurso, getCursos, buscarCurso, habilitarCurso } = require('../controllers/cursos.controller')
 const { requireRole, ACCESS } = require('../middlewares/guard.middleware');
 const { getCursoValidacion } = require('../validators/cursos.validator');
 
@@ -12,5 +12,6 @@ router.get("/buscar", requireRole(ACCESS.STAFF), buscarCurso);
 router.put("/:id", requireRole(ACCESS.STAFF), getCursoValidacion(true), updateCurso);
 router.delete("/:id", requireRole(ACCESS.STAFF), deleteCurso);
 router.get("/:id", requireRole(ACCESS.STAFF), getCurso);
+router.put("/:id/habilitar", requireRole(ACCESS.STAFF), habilitarCurso);
 
 module.exports = router

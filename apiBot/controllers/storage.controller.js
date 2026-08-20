@@ -38,15 +38,18 @@ const uploadFile = async (req, res) => {
             ? `${process.env.PUBLIC_URL}/storage/${folder}/${id}/${file.filename}`
             : `${process.env.PUBLIC_URL}/storage/${folder}/${file.filename}`;
 
-        res.status(201).json({
-            message: "Archivo subido con éxito",
-            url: publicUrl,
-            filename: file.filename
-        });
+        // res.status(201).json({
+        //     message: "Archivo subido con éxito",
+        //     url: publicUrl,
+        //     filename: file.filename
+        // });
+
+        const data = { url: publicUrl, filename: file.filename }
+
+        handleResponseJson(res, 201, data, 'ARCHIVO_SUBIDO');
 
     } catch (error) {
-        console.error("Error subiendo archivo:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+        handleHttpError(res, error, 'ERROR_AL_SUBIR_ARCHIVO');
     }
 
 };
